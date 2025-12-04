@@ -60,7 +60,7 @@ proot-distro login ubuntu --bind /dev/null:/proc/sys/kernel/cap_last_cap -- bash
     echo 'Installing Themes (Arc & Papirus)...'
     apt install -y arc-theme papirus-icon-theme dmz-cursor-theme
 
-    # 4. Install VS Code (Code Server)
+    # 4. Install VS Code (code-server)
     echo 'Installing VS Code (code-server)...'
     curl -fsSL https://code-server.dev/install.sh | sh
 
@@ -81,7 +81,6 @@ rm -rf /tmp/.X1-lock /tmp/.X11-unix/X1
 # pulseaudio --start || true
 
 # Apply Themes on Startup (Headless setup workaround)
-# We create a small autostart entry to apply themes once XFCE loads
 mkdir -p ~/.config/autostart
 cat > ~/.config/autostart/theme-setup.desktop <<'THEME'
 [Desktop Entry]
@@ -136,70 +135,90 @@ echo "3. Run 'solo-login' to enter the terminal only."
 echo ""
 `;
 
-export const MANUAL_GUIDE = `# Solo Ubuntu Manual Installation
+export const MANUAL_GUIDE = `# Solo Ubuntu: Step-by-Step Installation
 
-If you prefer to install step-by-step or the automatic script fails, follow this guide.
+Copy and paste these commands into Termux one by one if you prefer manual installation.
 
-## Prerequisites
-- **Termux** (F-Droid version recommended)
-- At least **4GB** free storage
-- Internet connection
+## Phase 1: Termux Setup (The Host)
+Run these inside Termux to prepare the environment.
 
-## 1. Setup Termux Base
-Update repositories and install the container engine.
 \`\`\`bash
-pkg update -y && pkg upgrade -y
-pkg install -y proot-distro git wget pulseaudio tigervnc x11-repo
-\`\`\`
+# 1. Update Termux repositories and packages
+yes | pkg up
 
-## 2. Install Ubuntu (Base)
-We use \`proot-distro\` for a stable, high-performance container.
-\`\`\`bash
+# 2. Install essential tools and the container engine
+pkg install -y proot-distro git wget pulseaudio tigervnc x11-repo python3
+
+# 3. Install the Ubuntu base image
 proot-distro install ubuntu
-\`\`\`
 
-## 3. Enter the Environment
-Login to the Ubuntu system.
-\`\`\`bash
+# 4. Login to the Ubuntu container
 proot-distro login ubuntu
 \`\`\`
-*(You are now inside Ubuntu)*
 
-## 4. Install Desktop & Themes (Inside Ubuntu)
-Update apt and install XFCE4, Firefox, and theme assets.
+---
+
+## Phase 2: Ubuntu Configuration (The Guest)
+You are now inside the \`root@localhost\` prompt. Run these to set up the desktop.
+
 \`\`\`bash
-apt update -y
-apt install -y xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 firefox
-apt install -y arc-theme papirus-icon-theme
+# 5. Update Ubuntu packages
+apt update -y && apt upgrade -y
+
+# 6. Install XFCE4 Desktop and VNC Server
+apt install -y xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 x11-xserver-utils
+
+# 7. Install Tools (Firefox, Git, Python)
+apt install -y firefox git wget nano python3-pip htop neofetch
+
+# 8. Install Themes (Arc Dark + Papirus) for that "Modded" look
+apt install -y arc-theme papirus-icon-theme dmz-cursor-theme
+
+# 9. (Optional) Install VS Code Server
+curl -fsSL https://code-server.dev/install.sh | sh
 \`\`\`
 
-## 5. Setup VNC Server
-Create the startup script at \`/usr/local/bin/vnc_start\`:
+---
+
+## Phase 3: Launch Scripts
+Create the startup script so you can launch the desktop easily.
 
 \`\`\`bash
+# 10. Configure VNC Password (default: ubuntu)
+mkdir -p ~/.vnc
+echo "ubuntu" | vncpasswd -f > ~/.vnc/passwd
+chmod 600 ~/.vnc/passwd
+
+# 11. Create the 'vnc_start' script
 cat > /usr/local/bin/vnc_start <<'EOF'
 #!/bin/bash
 export DISPLAY=:1
-# Set Arc Dark Theme
+export USER=root
+
+# Clean up old locks
+rm -rf /tmp/.X1-lock /tmp/.X11-unix/X1
+
+# Set Theme (Optional visual polish)
 xfconf-query -c xsettings -p /Net/ThemeName -s "Arc-Dark" 2>/dev/null || true
 xfconf-query -c xsettings -p /Net/IconThemeName -s "Papirus-Dark" 2>/dev/null || true
 
+# Start Server
 vncserver :1 -geometry 1280x720 -depth 24 -xstartup /usr/bin/startxfce4
+echo "VNC Started on :1"
 EOF
+
+# 12. Make it executable
 chmod +x /usr/local/bin/vnc_start
 \`\`\`
 
-Set the default password to 'ubuntu':
-\`\`\`bash
-mkdir -p ~/.vnc
-echo 'ubuntu' | vncpasswd -f > ~/.vnc/passwd
-chmod 600 ~/.vnc/passwd
-\`\`\`
+---
 
-## 6. Launching
-Inside Ubuntu, run:
+## How to Run
+Inside Ubuntu, simply type:
 \`\`\`bash
 /usr/local/bin/vnc_start
 \`\`\`
-Connect via VNC Viewer to \`127.0.0.1:5901\`.
+Then open your VNC Viewer app and connect to:
+**Address:** \`127.0.0.1:5901\`
+**Password:** \`ubuntu\`
 `;

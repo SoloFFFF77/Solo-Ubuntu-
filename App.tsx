@@ -3,7 +3,7 @@ import CodeViewer from './components/CodeViewer';
 import Features from './components/ConfigForm'; // Actually Features.tsx now
 import { SOLO_UBUNTU_SCRIPT, MANUAL_GUIDE } from './utils/generator';
 import { TabOption } from './types';
-import { Terminal, Download, BookOpen, Github, Monitor, Copy, Code } from 'lucide-react';
+import { Terminal, Download, BookOpen, Github, Monitor, Copy, Code, List } from 'lucide-react';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabOption>('install');
@@ -24,7 +24,7 @@ const App: React.FC = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
                 </span>
-                v2.0 Modded Edition
+                v2.1 Modded Edition
               </div>
               
               <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
@@ -49,8 +49,8 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab('manual')}
                   className="flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition-all border border-slate-700"
                 >
-                  <BookOpen size={18} />
-                  Read Guide
+                  <List size={18} />
+                  Step-by-Step
                 </button>
               </div>
             </div>
@@ -100,8 +100,8 @@ const App: React.FC = () => {
           <div className="lg:col-span-7 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                {activeTab === 'install' ? <Code className="text-orange-500"/> : <BookOpen className="text-blue-500"/>}
-                {activeTab === 'install' ? 'Source Code' : 'Documentation'}
+                {activeTab === 'install' ? <Code className="text-orange-500"/> : <List className="text-blue-500"/>}
+                {activeTab === 'install' ? 'Source Code' : 'Manual Steps'}
               </h2>
               
               <div className="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
@@ -131,6 +131,30 @@ const App: React.FC = () => {
 
           {/* Sidebar / Features */}
           <div className="lg:col-span-5 space-y-8">
+            
+            {/* New Prerequisites Block */}
+            <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5">
+               <h3 className="font-bold text-white mb-3 flex items-center gap-2">
+                 <Terminal size={16} className="text-green-500"/> 
+                 Prerequisites
+               </h3>
+               <p className="text-sm text-slate-400 mb-3">
+                 Before running anything, update Termux dependencies:
+               </p>
+               <div className="relative group">
+                 <code className="block bg-black p-3 rounded-lg text-xs font-mono text-green-400 border border-slate-800">
+                   pkg update -y && pkg install -y proot-distro git
+                 </code>
+                 <button 
+                    onClick={() => navigator.clipboard.writeText("pkg update -y && pkg install -y proot-distro git")}
+                    className="absolute right-2 top-2 p-1.5 bg-slate-800 text-slate-400 rounded hover:text-white hover:bg-slate-700 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Copy"
+                 >
+                   <Copy size={12} />
+                 </button>
+               </div>
+            </div>
+
             <div>
               <h2 className="text-xl font-bold text-white mb-6">Why Solo Ubuntu?</h2>
               <Features />
