@@ -1,0 +1,5 @@
+{
+  "name": "Solo Ubuntu Project",
+  "description": "The ultimate modded Ubuntu installer for Termux.",
+  "requestFramePermissions": []
+}
